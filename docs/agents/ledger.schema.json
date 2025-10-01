@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^\\d{8}-\\d{4}-[a-z0-9-]+$",
+            "description": "Unique identifier in format YYYYMMDD-HHMM-description"
+          },
+          "actor": {
+            "type": "string",
+            "enum": ["agent:cursor", "human:phil"],
+            "description": "Who performed the work"
+          },
+          "intent": {
+            "type": "string",
+            "description": "Brief description of what was intended"
+          },
+          "inputs": {
+            "type": "object",
+            "description": "Key parameters or inputs that define this work"
+          },
+          "relatedFiles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Files that were created or modified"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["done", "skipped-duplicate", "failed"],
+            "description": "Final status of the work"
+          },
+          "evidence": {
+            "type": "string",
+            "description": "Evidence of completion (commit SHA, PR #, etc.)"
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional notes and follow-up items"
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "SHA256 hash of intent + inputs for duplicate detection"
+          }
+        },
+        "required": ["id", "actor", "intent", "inputs", "relatedFiles", "status", "evidence", "fingerprint"]
+      }
+    }
+  },
+  "required": ["entries"]
+}
