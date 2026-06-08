@@ -84,7 +84,7 @@ class RiskManager:
         self.daily_start_balance = initial_balance
         self.portfolio_history = [initial_balance]
 
-        logger.info(f"Risk manager initialized with ${initial_balance","} balance")
+        logger.info(f"Risk manager initialized with ${initial_balance} balance")
 
     def update_portfolio_value(self, current_value: float) -> bool:
         """Update portfolio value and check risk limits."""
@@ -101,7 +101,7 @@ class RiskManager:
             if drawdown > self.max_drawdown:
                 self._trigger_risk_event(
                     "max_drawdown_exceeded",
-                    f"Portfolio drawdown {drawdown".2%"} exceeds limit {self.max_drawdown".2%"}"
+                    f"Portfolio drawdown {drawdown:.2%} exceeds limit {self.max_drawdown:.2%}"
                 )
                 return True
 
@@ -116,7 +116,7 @@ class RiskManager:
             if daily_loss > self.max_daily_loss:
                 self._trigger_risk_event(
                     "max_daily_loss_exceeded",
-                    f"Daily loss {daily_loss".2%"} exceeds limit {self.max_daily_loss".2%"}"
+                    f"Daily loss {daily_loss:.2%} exceeds limit {self.max_daily_loss:.2%}"
                 )
                 return True
 
@@ -136,7 +136,7 @@ class RiskManager:
         if portfolio_value > 0:
             position_size_pct = position_value / portfolio_value
             if position_size_pct > self.max_position_size:
-                return False, f"Position size {position_size_pct".2%"} exceeds limit {self.max_position_size".2%"}"
+                return False, f"Position size {position_size_pct:.2%} exceeds limit {self.max_position_size:.2%}"
 
         # Check if symbol already has position
         if symbol in self.positions:
@@ -182,14 +182,14 @@ class RiskManager:
             stop_price = entry_price * (1 - self.stop_loss_pct)
 
             if current_price <= stop_price:
-                return True, f"Stop loss triggered: {current_price".4f"} <= {stop_price".4f"}"
+                return True, f"Stop loss triggered: {current_price:.4f} <= {stop_price:.4f}"
 
         else:  # Short position
             entry_price = position.avg_price
             stop_price = entry_price * (1 + self.stop_loss_pct)
 
             if current_price >= stop_price:
-                return True, f"Stop loss triggered: {current_price".4f"} >= {stop_price".4f"}"
+                return True, f"Stop loss triggered: {current_price:.4f} >= {stop_price:.4f}"
 
         # Take profit check
         if position.quantity > 0:  # Long position
@@ -197,14 +197,14 @@ class RiskManager:
             target_price = entry_price * (1 + self.take_profit_pct)
 
             if current_price >= target_price:
-                return True, f"Take profit triggered: {current_price".4f"} >= {target_price".4f"}"
+                return True, f"Take profit triggered: {current_price:.4f} >= {target_price:.4f}"
 
         else:  # Short position
             entry_price = position.avg_price
             target_price = entry_price * (1 - self.take_profit_pct)
 
             if current_price <= target_price:
-                return True, f"Take profit triggered: {current_price".4f"} <= {target_price".4f"}"
+                return True, f"Take profit triggered: {current_price:.4f} <= {target_price:.4f}"
 
         # Trailing stop check (simplified)
         if self.trailing_stop and position.quantity > 0:
@@ -219,7 +219,7 @@ class RiskManager:
             trailing_stop_price = position.highest_price * (1 - self.trailing_stop_pct)
 
             if current_price <= trailing_stop_price:
-                return True, f"Trailing stop triggered: {current_price".4f"} <= {trailing_stop_price".4f"}"
+                return True, f"Trailing stop triggered: {current_price:.4f} <= {trailing_stop_price:.4f}"
 
         return False, "OK"
 
@@ -375,9 +375,9 @@ class RiskMonitor:
         metrics = self.risk_manager.get_risk_metrics()
 
         logger.info("Risk Monitor Update:")
-        logger.info(f"  Portfolio Value: ${metrics.get('current_value', 0)",.2f"}")
-        logger.info(f"  Current Drawdown: {metrics.get('current_drawdown', 0)".2%"}")
-        logger.info(f"  Daily Loss: {metrics.get('daily_loss', 0)".2%"}")
+        logger.info(f"  Portfolio Value: ${metrics.get('current_value', 0):.2f}")
+        logger.info(f"  Current Drawdown: {metrics.get('current_drawdown', 0):.2%}")
+        logger.info(f"  Daily Loss: {metrics.get('daily_loss', 0):.2%}")
         logger.info(f"  Positions: {metrics.get('num_positions', 0)}")
         logger.info(f"  Risk Events: {metrics.get('risk_events', 0)}")
 
@@ -389,11 +389,11 @@ class RiskMonitor:
 
         # Drawdown alert
         if metrics.get('current_drawdown', 0) > 0.10:  # 10%
-            alerts.append(f"High drawdown: {metrics['current_drawdown']".2%"}")
+            alerts.append(f"High drawdown: {metrics['current_drawdown']:.2%}")
 
         # Daily loss alert
         if metrics.get('daily_loss', 0) > 0.03:  # 3%
-            alerts.append(f"High daily loss: {metrics['daily_loss']".2%"}")
+            alerts.append(f"High daily loss: {metrics['daily_loss']:.2%}")
 
         # Position concentration alert
         if metrics.get('num_positions', 0) > 10:

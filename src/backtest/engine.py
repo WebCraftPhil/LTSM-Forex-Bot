@@ -106,7 +106,7 @@ class BacktestEngine:
         cerebro.addanalyzer(bt.analyzers.Returns, _name='returns')
         cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')
 
-        logger.info(f"Running backtest with ${self.config.stake","} initial capital")
+        logger.info(f"Running backtest with ${self.config.stake} initial capital")
 
         # Run backtest
         results = cerebro.run()
@@ -263,7 +263,7 @@ class BacktestEngine:
 
             # Update layout
             fig.update_layout(
-                title=f"Backtest Results - Total Return: {results['portfolio']['total_return']".2%"}",
+                title=f"Backtest Results - Total Return: {results['portfolio']['total_return']:.2%}",
                 height=800,
                 showlegend=False
             )

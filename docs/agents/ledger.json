@@ -234,6 +234,44 @@
         "Added setup guides for Colab and Linux server deployment"
       ],
       "fingerprint": "sha256:comprehensive_documentation_2025"
+    },
+    {
+      "id": "20260608-1505-tradelocker-live-fixes",
+      "actor": "agent:cursor",
+      "intent": "Fix live trading syntax/runtime issues and add TradeLocker broker support",
+      "inputs": {
+        "brokers": ["alpaca", "tradelocker"],
+        "targets": [
+          "main.py",
+          "src/live/executor.py",
+          "src/live/executor_cli.py",
+          "src/live/broker_tradelocker.py",
+          "src/utils/logging.py",
+          "src/live/risk_manager.py",
+          "src/backtest/engine.py",
+          "src/backtest/engine_cli.py",
+          "src/backtest/strategy.py"
+        ]
+      },
+      "relatedFiles": [
+        "main.py",
+        "src/live/executor.py",
+        "src/live/executor_cli.py",
+        "src/live/broker_tradelocker.py",
+        "src/utils/logging.py",
+        "src/live/risk_manager.py",
+        "src/backtest/engine.py",
+        "src/backtest/engine_cli.py",
+        "src/backtest/strategy.py"
+      ],
+      "status": "done",
+      "evidence": "python3 -m py_compile $(rg --files -g '*.py') passed after the live and backtest fixes",
+      "notes": [
+        "Added TradeLocker broker adapter with JWT authentication, account discovery, order placement, and market-data helpers",
+        "Fixed malformed f-strings across live trading, backtesting, and structured logging",
+        "Updated the CLI dispatcher so nested commands forward their original arguments correctly"
+      ],
+      "fingerprint": "sha256:tradelocker_live_fixes_20260608"
     }
   ]
 }

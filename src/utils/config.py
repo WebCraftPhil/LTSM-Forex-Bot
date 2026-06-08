@@ -86,6 +86,21 @@ class LiveConfig(BaseModel):
     daily_loss_limit: float = 0.05
     max_drawdown: float = 0.20
 
+    # Broker-specific credentials and defaults
+    api_key: str = ""
+    api_secret: str = ""
+    base_url: str = ""
+
+    tradelocker_access_token: str = ""
+    tradelocker_email: str = ""
+    tradelocker_password: str = ""
+    tradelocker_server: str = "SERVER"
+    tradelocker_account_id: Optional[int] = None
+    tradelocker_acc_num: Optional[int] = None
+    tradelocker_developer_api_key: str = ""
+    tradelocker_demo_base_url: str = "https://demo.tradelocker.com/backend-api"
+    tradelocker_live_base_url: str = "https://live.tradelocker.com/backend-api"
+
     enable_alerts: bool = False
     alert_webhook: str = ""
     alert_thresholds: Dict[str, float] = Field(default_factory=dict)

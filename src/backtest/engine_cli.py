@@ -62,11 +62,15 @@ def main():
 
         # Print summary
         logger.info("Backtest Results Summary:")
-        logger.info(f"  Total Return: {results['portfolio']['total_return']".2%"}")
-        logger.info(f"  Sharpe Ratio: {results['sharpe_ratio']".3f"}")
-        logger.info(f"  Max Drawdown: {results['max_drawdown']".2%"}")
+        logger.info(f"  Total Return: {results['portfolio']['total_return']:.2%}")
+        logger.info(f"  Sharpe Ratio: {results['sharpe_ratio']:.3f}")
+        logger.info(f"  Max Drawdown: {results['max_drawdown']:.2%}")
         logger.info(f"  Total Trades: {results['num_trades']}")
-        logger.info(f"  Win Rate: {results['winning_trades']/results['num_trades']".2%"}" if results['num_trades'] > 0 else "  Win Rate: N/A")
+        logger.info(
+            f"  Win Rate: {results['winning_trades'] / results['num_trades']:.2%}"
+            if results['num_trades'] > 0
+            else "  Win Rate: N/A"
+        )
 
         logger.info(f"Backtest report saved to {args.report}")
 

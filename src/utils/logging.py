@@ -83,7 +83,7 @@ class MetricsLogger:
             **kwargs
         }
 
-        self.logger.info(f"Trade: {action} {quantity} {symbol} @ {price}", extra_fields=extra_fields)
+        self.logger.info(f"Trade: {action} {quantity} {symbol} @ {price}", extra={"extra_fields": extra_fields})
 
     def log_signal(self, symbol: str, signal: str, confidence: float,
                    price: float, **kwargs):
@@ -97,7 +97,10 @@ class MetricsLogger:
             **kwargs
         }
 
-        self.logger.info(f"Signal: {signal} {symbol} (conf: {confidence".3f"})", extra_fields=extra_fields)
+        self.logger.info(
+            f"Signal: {signal} {symbol} (conf: {confidence:.3f})",
+            extra={"extra_fields": extra_fields},
+        )
 
     def log_model_metrics(self, epoch: int, train_loss: float,
                           val_loss: float, metrics: dict, **kwargs):
@@ -111,9 +114,11 @@ class MetricsLogger:
             **kwargs
         }
 
-        metrics_str = ", ".join([f"{k}: {v".4f"}" for k, v in metrics.items()])
-        self.logger.info(f"Epoch {epoch}: train_loss={train_loss".4f"}, val_loss={val_loss".4f"}, {metrics_str}",
-                        extra_fields=extra_fields)
+        metrics_str = ", ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
+        self.logger.info(
+            f"Epoch {epoch}: train_loss={train_loss:.4f}, val_loss={val_loss:.4f}, {metrics_str}",
+            extra={"extra_fields": extra_fields},
+        )
 
     def log_backtest_results(self, results: dict, **kwargs):
         """Log backtest performance results."""
@@ -123,10 +128,12 @@ class MetricsLogger:
             **kwargs
         }
 
-        self.logger.info(f"Backtest completed: {results.get('total_return', 0)".2%"} return, "
-                       f"Sharpe: {results.get('sharpe_ratio', 0)".3f"}, "
-                       f"Max DD: {results.get('max_drawdown', 0)".2%"}",
-                       extra_fields=extra_fields)
+        self.logger.info(
+            f"Backtest completed: {results.get('total_return', 0):.2%} return, "
+            f"Sharpe: {results.get('sharpe_ratio', 0):.3f}, "
+            f"Max DD: {results.get('max_drawdown', 0):.2%}",
+            extra={"extra_fields": extra_fields},
+        )
 
     def log_risk_event(self, event_type: str, description: str, **kwargs):
         """Log risk management events."""
@@ -137,7 +144,10 @@ class MetricsLogger:
             **kwargs
         }
 
-        self.logger.warning(f"Risk Event [{event_type}]: {description}", extra_fields=extra_fields)
+        self.logger.warning(
+            f"Risk Event [{event_type}]: {description}",
+            extra={"extra_fields": extra_fields},
+        )
 
     def log_system_event(self, event_type: str, description: str, **kwargs):
         """Log system-level events."""
@@ -148,7 +158,10 @@ class MetricsLogger:
             **kwargs
         }
 
-        self.logger.info(f"System Event [{event_type}]: {description}", extra_fields=extra_fields)
+        self.logger.info(
+            f"System Event [{event_type}]: {description}",
+            extra={"extra_fields": extra_fields},
+        )
 
 def get_logger(name: str = "lstm_trading_bot") -> logging.Logger:
     """Get configured logger instance."""

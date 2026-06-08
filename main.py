@@ -82,8 +82,17 @@ Examples:
     live_run_parser.add_argument('--config', required=True)
     live_run_parser.add_argument('--model-path', required=True)
     live_run_parser.add_argument('--mode', default='paper', choices=['paper', 'live'])
+    live_run_parser.add_argument('--broker')
     live_run_parser.add_argument('--api-key')
     live_run_parser.add_argument('--api-secret')
+    live_run_parser.add_argument('--access-token')
+    live_run_parser.add_argument('--email')
+    live_run_parser.add_argument('--password')
+    live_run_parser.add_argument('--server')
+    live_run_parser.add_argument('--account-id', type=int)
+    live_run_parser.add_argument('--acc-num', type=int)
+    live_run_parser.add_argument('--base-url')
+    live_run_parser.add_argument('--developer-api-key')
 
     # Global options
     parser.add_argument('--log-level', default='INFO', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'])
@@ -99,32 +108,36 @@ Examples:
         if args.command == 'data':
             if args.subcommand == 'load':
                 from src.data.loaders_cli import main as data_main
-                # Override sys.argv for the subcommand
-                sys.argv = ['data_load'] + [f'--{k}={v}' if v is not None else f'--{k}' for k, v in vars(args).items() if k not in ['command', 'subcommand'] and v is not None]
+                subcommand_args = sys.argv[sys.argv.index(args.subcommand) + 1:]
+                sys.argv = ['data_load'] + subcommand_args
                 data_main()
 
         elif args.command == 'features':
             if args.subcommand == 'build':
                 from src.features.build_dataset_cli import main as features_main
-                sys.argv = ['features_build'] + [f'--{k}={v}' if v is not None else f'--{k}' for k, v in vars(args).items() if k not in ['command', 'subcommand'] and v is not None]
+                subcommand_args = sys.argv[sys.argv.index(args.subcommand) + 1:]
+                sys.argv = ['features_build'] + subcommand_args
                 features_main()
 
         elif args.command == 'training':
             if args.subcommand == 'train':
                 from src.training.train_cli import main as training_main
-                sys.argv = ['training_train'] + [f'--{k}={v}' if v is not None else f'--{k}' for k, v in vars(args).items() if k not in ['command', 'subcommand'] and v is not None]
+                subcommand_args = sys.argv[sys.argv.index(args.subcommand) + 1:]
+                sys.argv = ['training_train'] + subcommand_args
                 training_main()
 
         elif args.command == 'backtest':
             if args.subcommand == 'run':
                 from src.backtest.engine_cli import main as backtest_main
-                sys.argv = ['backtest_run'] + [f'--{k}={v}' if v is not None else f'--{k}' for k, v in vars(args).items() if k not in ['command', 'subcommand'] and v is not None]
+                subcommand_args = sys.argv[sys.argv.index(args.subcommand) + 1:]
+                sys.argv = ['backtest_run'] + subcommand_args
                 backtest_main()
 
         elif args.command == 'live':
             if args.subcommand == 'run':
                 from src.live.executor_cli import main as live_main
-                sys.argv = ['live_run'] + [f'--{k}={v}' if v is not None else f'--{k}' for k, v in vars(args).items() if k not in ['command', 'subcommand'] and v is not None]
+                subcommand_args = sys.argv[sys.argv.index(args.subcommand) + 1:]
+                sys.argv = ['live_run'] + subcommand_args
                 live_main()
 
     except ImportError as e:

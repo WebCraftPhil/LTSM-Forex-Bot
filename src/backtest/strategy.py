@@ -342,7 +342,7 @@ class LSTMStrategy(bt.Strategy):
 
             self.trades.append(trade_info)
 
-            logger.info(f"Trade closed: PnL ${trade.pnlcomm".2f"}, Size {trade.size}")
+            logger.info(f"Trade closed: PnL ${trade.pnlcomm:.2f}, Size {trade.size}")
 
     def notify_order(self, order):
         """Called when an order is completed."""
@@ -353,7 +353,7 @@ class LSTMStrategy(bt.Strategy):
     def stop(self):
         """Called when backtest ends."""
 
-        logger.info(f"Strategy completed. Final portfolio value: ${self.broker.getvalue()".2f"}")
+        logger.info(f"Strategy completed. Final portfolio value: ${self.broker.getvalue():.2f}")
 
         # Calculate final statistics
         if self.trades:
@@ -361,5 +361,5 @@ class LSTMStrategy(bt.Strategy):
             win_rate = len([t for t in self.trades if t['pnl'] > 0]) / len(self.trades)
 
             logger.info(f"Total trades: {len(self.trades)}")
-            logger.info(f"Total P&L: ${total_pnl".2f"}")
-            logger.info(f"Win rate: {win_rate".2%"}")
+            logger.info(f"Total P&L: ${total_pnl:.2f}")
+            logger.info(f"Win rate: {win_rate:.2%}")

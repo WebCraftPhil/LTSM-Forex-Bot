@@ -135,6 +135,22 @@ live:
   daily_loss_limit: 0.05  # 5% daily loss limit
   max_drawdown: 0.20  # 20% max drawdown
 
+  # Broker credentials and connection defaults
+  api_key: ""
+  api_secret: ""
+  base_url: ""
+
+  # TradeLocker settings
+  tradelocker_access_token: ""
+  tradelocker_email: ""
+  tradelocker_password: ""
+  tradelocker_server: "SERVER"
+  tradelocker_account_id: null
+  tradelocker_acc_num: null
+  tradelocker_developer_api_key: ""
+  tradelocker_demo_base_url: "https://demo.tradelocker.com/backend-api"
+  tradelocker_live_base_url: "https://live.tradelocker.com/backend-api"
+
   # Alerts
   enable_alerts: false
   alert_webhook: ""
@@ -163,5 +179,12 @@ logging:
 # API_SECRET_ALPACA=
 # API_KEY_OANDA=
 # API_KEY_BINANCE=
+# TRADELOCKER_ACCESS_TOKEN=
+# TRADELOCKER_EMAIL=
+# TRADELOCKER_PASSWORD=
+# TRADELOCKER_SERVER=
+# TRADELOCKER_ACCOUNT_ID=
+# TRADELOCKER_ACC_NUM=
+# TRADELOCKER_DEVELOPER_API_KEY=
 # SLACK_WEBHOOK=
 # DISCORD_WEBHOOK=

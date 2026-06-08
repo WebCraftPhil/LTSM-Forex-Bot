@@ -7,12 +7,15 @@ from typing import Dict, List, Optional, Any, Callable
 import logging
 from datetime import datetime, timedelta
 
+import numpy as np
+
 from ..utils.config import get_config, LiveConfig
 from ..utils.logging import get_logger, get_metrics_logger
 from ..models.lstm_fusion import load_model
 from ..features.build_dataset import FeatureEngineer
 from .broker_base import BrokerBase, Order, Position, MarketData
 from .streamer import MarketDataStreamer, StreamManager
+from .broker_tradelocker import TradeLockerBroker
 from ..training.metrics import TradingMetrics
 
 logger = get_logger(__name__)
@@ -45,9 +48,11 @@ class CircuitBreaker:
             self.peak_balance = current_balance
 
         # Check drawdown
-        drawdown = (self.peak_balance - current_balance) / self.peak_balance
+        drawdown = (self.peak_balance - current_balance) / self.peak_balance if self.peak_balance else 0
         if drawdown > self.max_drawdown:
-            logger.warning(f"Circuit breaker triggered: drawdown {drawdown".2%"} > {self.max_drawdown".2%"}")
+            logger.warning(
+                f"Circuit breaker triggered: drawdown {drawdown:.2%} > {self.max_drawdown:.2%}"
+            )
             self.triggered = True
             return True
 
@@ -57,9 +62,15 @@ class CircuitBreaker:
             self.daily_start_balance = current_balance
             self.last_reset = now
 
-        daily_loss = (self.daily_start_balance - current_balance) / self.daily_start_balance
+        daily_loss = (
+            (self.daily_start_balance - current_balance) / self.daily_start_balance
+            if self.daily_start_balance
+            else 0
+        )
         if daily_loss > self.max_daily_loss:
-            logger.warning(f"Circuit breaker triggered: daily loss {daily_loss".2%"} > {self.max_daily_loss".2%"}")
+            logger.warning(
+                f"Circuit breaker triggered: daily loss {daily_loss:.2%} > {self.max_daily_loss:.2%}"
+            )
             self.triggered = True
             return True
 
@@ -122,10 +133,13 @@ class TradingExecutor:
 
         # Get initial account info
         account_info = await self.broker.get_account_info()
-        self.start_balance = account_info.get('portfolio_value', 0)
+        self.start_balance = account_info.get(
+            'portfolio_value',
+            account_info.get('equity', account_info.get('balance', 0))
+        )
         self.circuit_breaker.update_balance(self.start_balance)
 
-        logger.info(f"Initial balance: ${self.start_balance","}")
+        logger.info(f"Initial balance: ${self.start_balance:.2f}")
 
         # Setup streaming
         symbols = self._get_trading_symbols()
@@ -293,7 +307,10 @@ class TradingExecutor:
 
         # Update circuit breaker with current balance
         account_info = await self.broker.get_account_info()
-        current_balance = account_info.get('portfolio_value', 0)
+        current_balance = account_info.get(
+            'portfolio_value',
+            account_info.get('equity', account_info.get('balance', 0))
+        )
 
         if self.circuit_breaker.update_balance(current_balance):
             logger.warning("Circuit breaker triggered!")
@@ -338,53 +355,97 @@ class TradingExecutor:
         if not self.trades:
             return {}
 
-        trade_returns = [trade['pnl'] / self.start_balance for trade in self.trades]
+        trade_returns = [trade['pnl'] / self.start_balance for trade in self.trades if self.start_balance]
         return self.metrics.calculate_trade_statistics(np.array(trade_returns))
 
-async def create_paper_trading_executor(model_path: str, api_key: str, api_secret: str) -> TradingExecutor:
+async def create_broker(
+    mode: str,
+    broker_name: str,
+    api_key: Optional[str] = None,
+    api_secret: Optional[str] = None,
+    **broker_options: Any,
+) -> BrokerBase:
+    """Create a broker adapter for the requested broker."""
+
+    broker_name = broker_name.lower().strip()
+
+    if broker_name == "alpaca":
+        from .broker_alpaca import AlpacaBroker
+
+        base_url = broker_options.pop(
+            "base_url",
+            "https://paper-api.alpaca.markets" if mode == "paper" else "https://api.alpaca.markets",
+        )
+        return AlpacaBroker(api_key=api_key, api_secret=api_secret, base_url=base_url, **broker_options)
+
+    if broker_name == "tradelocker":
+        base_url = broker_options.pop(
+            "base_url",
+            "https://demo.tradelocker.com/backend-api" if mode == "paper" else "https://live.tradelocker.com/backend-api",
+        )
+        return TradeLockerBroker(
+            api_key=api_key,
+            api_secret=api_secret,
+            base_url=base_url,
+            **broker_options,
+        )
+
+    raise ValueError(f"Unknown broker: {broker_name}")
+
+
+async def create_paper_trading_executor(
+    model_path: str,
+    api_key: Optional[str],
+    api_secret: Optional[str],
+    broker_name: str = "alpaca",
+    **broker_options: Any,
+) -> TradingExecutor:
     """Create executor for paper trading."""
 
-    from .broker_alpaca import AlpacaBroker
+    broker = await create_broker("paper", broker_name, api_key, api_secret, **broker_options)
 
-    # Create Alpaca broker in paper trading mode
-    broker = AlpacaBroker(
-        api_key=api_key,
-        api_secret=api_secret,
-        base_url="https://paper-api.alpaca.markets"
-    )
-
-    # Create executor
     executor = TradingExecutor()
     await executor.initialize(model_path, broker)
 
     return executor
 
-async def create_live_trading_executor(model_path: str, api_key: str, api_secret: str) -> TradingExecutor:
+
+async def create_live_trading_executor(
+    model_path: str,
+    api_key: Optional[str],
+    api_secret: Optional[str],
+    broker_name: str = "alpaca",
+    **broker_options: Any,
+) -> TradingExecutor:
     """Create executor for live trading."""
 
-    from .broker_alpaca import AlpacaBroker
+    broker = await create_broker("live", broker_name, api_key, api_secret, **broker_options)
 
-    # Create Alpaca broker in live trading mode
-    broker = AlpacaBroker(
-        api_key=api_key,
-        api_secret=api_secret,
-        base_url="https://api.alpaca.markets"
-    )
-
-    # Create executor
     executor = TradingExecutor()
     await executor.initialize(model_path, broker)
 
     return executor
 
-def run_executor(model_path: str, mode: str = "paper", api_key: Optional[str] = None, api_secret: Optional[str] = None):
+
+def run_executor(
+    model_path: str,
+    mode: str = "paper",
+    api_key: Optional[str] = None,
+    api_secret: Optional[str] = None,
+    broker_name: str = "alpaca",
+    **broker_options: Any,
+):
     """Run trading executor (blocking call)."""
 
     async def main():
         if mode == "paper":
-            executor = await create_paper_trading_executor(model_path, api_key, api_secret)
+            executor = await create_paper_trading_executor(
+                model_path, api_key, api_secret, broker_name=broker_name, **broker_options
+            )
         elif mode == "live":
-            executor = await create_live_trading_executor(model_path, api_key, api_secret)
+            executor = await create_live_trading_executor(
+                model_path, api_key, api_secret, broker_name=broker_name, **broker_options
+            )
         else:
             raise ValueError(f"Unknown mode: {mode}")
 
