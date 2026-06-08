@@ -258,6 +258,76 @@ Generates comprehensive reports:
 
 ## 🔴 Live Trading
 
+### TradeLocker
+
+To use TradeLocker, you do not import a separate strategy module. The broker adapter is:
+
+```python
+from src.live import TradeLockerBroker
+```
+
+Create a local `.env` file from [`.env.example`](/Users/philgreene/Downloads/LTSM-Forex-Bot/.env.example) and paste your TradeLocker values there:
+
+```bash
+# TradeLocker
+TRADELOCKER_ACCESS_TOKEN=your_access_token
+TRADELOCKER_EMAIL=your_email
+TRADELOCKER_PASSWORD=your_password
+TRADELOCKER_SERVER=SERVER
+TRADELOCKER_ACCOUNT_ID=your_account_id
+TRADELOCKER_ACC_NUM=your_acc_num
+TRADELOCKER_DEVELOPER_API_KEY=your_developer_api_key
+```
+
+If you already have an access token, you can usually leave `TRADELOCKER_EMAIL` and `TRADELOCKER_PASSWORD` blank.
+
+For normal runs, use the CLI:
+
+```bash
+python main.py live run \
+  --config config/config.yaml \
+  --model-path models/best_model.pth \
+  --mode paper \
+  --broker tradelocker \
+  --access-token "$TRADELOCKER_ACCESS_TOKEN"
+```
+
+If you prefer email/password auth:
+
+```bash
+python main.py live run \
+  --config config/config.yaml \
+  --model-path models/best_model.pth \
+  --mode paper \
+  --broker tradelocker \
+  --email "$TRADELOCKER_EMAIL" \
+  --password "$TRADELOCKER_PASSWORD" \
+  --server "$TRADELOCKER_SERVER"
+```
+
+TradeLocker settings are in `config/config.yaml` under `live:`:
+
+- `tradelocker_access_token`
+- `tradelocker_email`
+- `tradelocker_password`
+- `tradelocker_server`
+- `tradelocker_account_id`
+- `tradelocker_acc_num`
+- `tradelocker_developer_api_key`
+- `tradelocker_demo_base_url`
+- `tradelocker_live_base_url`
+
+The adapter follows TradeLocker's public API flow:
+
+- JWT auth via `POST /auth/jwt/token`
+- account discovery via `GET /auth/jwt/all-accounts`
+- config via `GET /trade/config`
+- positions via `GET /trade/accounts/{accountId}/positions`
+- open orders via `GET /trade/accounts/{accountId}/orders`
+- order placement via `POST /trade/accounts/{accountId}/orders`
+- order cancel via `DELETE /trade/accounts/{accountId}/orders/{orderId}`
+- market data via `GET /trade/dailyBar` and `GET /trade/history`
+
 ### Execution Modes
 
 - **Paper Trading**: Risk-free testing with real market data

@@ -243,9 +243,11 @@
         "brokers": ["alpaca", "tradelocker"],
         "targets": [
           "main.py",
+          "requirements.txt",
           "src/live/executor.py",
           "src/live/executor_cli.py",
           "src/live/broker_tradelocker.py",
+          "src/utils/config.py",
           "src/utils/logging.py",
           "src/live/risk_manager.py",
           "src/backtest/engine.py",
@@ -255,9 +257,11 @@
       },
       "relatedFiles": [
         "main.py",
+        "requirements.txt",
         "src/live/executor.py",
         "src/live/executor_cli.py",
         "src/live/broker_tradelocker.py",
+        "src/utils/config.py",
         "src/utils/logging.py",
         "src/live/risk_manager.py",
         "src/backtest/engine.py",
@@ -265,13 +269,36 @@
         "src/backtest/strategy.py"
       ],
       "status": "done",
-      "evidence": "python3 -m py_compile $(rg --files -g '*.py') passed after the live and backtest fixes",
+      "evidence": "python3 -m py_compile $(rg --files -g '*.py') passed and venv imports succeeded after installing requirements",
       "notes": [
         "Added TradeLocker broker adapter with JWT authentication, account discovery, order placement, and market-data helpers",
         "Fixed malformed f-strings across live trading, backtesting, and structured logging",
-        "Updated the CLI dispatcher so nested commands forward their original arguments correctly"
+        "Updated the CLI dispatcher so nested commands forward their original arguments correctly",
+        "Added the missing ta dependency and TradeLocker config fields to align YAML with runtime settings"
       ],
       "fingerprint": "sha256:tradelocker_live_fixes_20260608"
+    },
+    {
+      "id": "20260608-1645-tradelocker-studio-standalone",
+      "actor": "agent:cursor",
+      "intent": "Create a single-file TradeLocker Studio bot strategy for direct paste into the bot code window",
+      "inputs": {
+        "style": "standalone_backtrader_strategy",
+        "strategy": "macd_crossover",
+        "imports": ["backtrader"]
+      },
+      "relatedFiles": [
+        "tradelocker_studio_macd_strategy.py",
+        "README.md"
+      ],
+      "status": "done",
+      "evidence": "Created paste-ready standalone TradeLocker Studio strategy file",
+      "notes": [
+        "Avoids local project imports so it can run inside the single TradeLocker Studio code window",
+        "Uses custom crossover logic and basic stop-loss/take-profit management",
+        "Documented the .env setup separately for the repo-based bot"
+      ],
+      "fingerprint": "sha256:tradelocker_studio_standalone_20260608"
     }
   ]
 }
