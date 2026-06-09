@@ -299,6 +299,36 @@
         "Documented the .env setup separately for the repo-based bot"
       ],
       "fingerprint": "sha256:tradelocker_studio_standalone_20260608"
+    },
+    {
+      "id": "20260608-2047-tradelocker-studio-tuning",
+      "actor": "agent:codex",
+      "intent": "Tune TradeLocker Studio EUR/USD 15m strategy after weak flat-to-negative backtest results",
+      "inputs": {
+        "symbol": "EURUSD",
+        "timeframe": "15m",
+        "issues": [
+          "RSI exhaustion entries",
+          "weekend gap entries",
+          "fast trend-break churn"
+        ]
+      },
+      "relatedFiles": [
+        "tradelocker_studio_macd_strategy.py"
+      ],
+      "status": "done",
+      "evidence": "python3 -m py_compile tradelocker_studio_macd_strategy.py and git diff --check passed",
+      "notes": [
+        "Added RSI upper/lower bounds to avoid chasing overextended EUR/USD 15m moves",
+        "Added EMA-gap and ATR-percent filters so entries require trend separation and volatility",
+        "Blocked fresh entries during Friday/weekend/Monday-open dead zones",
+        "Widened ATR exits and delayed trend-break/reversal exits until the minimum hold period",
+                "Added v2 internal parameters so TradeLocker cached UI values do not silently override the new tuning",
+                "Changed entries from pure MACD crossovers to trend-continuation breakouts with max fast-EMA distance and trailing protection",
+                "Added v3 exit defaults after the 2013 EUR/USD run showed fast-EMA trend-break exits were cutting many trades before ATR targets/stops could work",
+                "Added v4 entry-hour filter after the latest 2013 EUR/USD run showed profitable trades clustering around 13:00-17:59 while early and late entries caused most losses"
+            ],
+      "fingerprint": "sha256:tradelocker_studio_tuning_20260608"
     }
   ]
 }
